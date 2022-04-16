@@ -1,5 +1,6 @@
 package dev.atick.bluetooth.utils.extensions
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothClass.Device.Major.*
 import android.bluetooth.BluetoothDevice
 import androidx.compose.material.icons.Icons
@@ -7,6 +8,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.ViewInAr
 import androidx.compose.ui.graphics.vector.ImageVector
 
+@SuppressLint("MissingPermission")
 fun BluetoothDevice.getDeviceIcon(): ImageVector {
     return when (this.bluetoothClass.majorDeviceClass) {
         AUDIO_VIDEO -> Icons.Default.BluetoothAudio

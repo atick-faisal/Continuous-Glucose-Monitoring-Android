@@ -1,5 +1,6 @@
 package dev.atick.bluetooth.repository
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
@@ -16,9 +17,10 @@ import java.io.InputStream
 import java.util.*
 import javax.inject.Inject
 
-class BluetoothRepositoryImpl @Inject constructor(
+@SuppressLint("MissingPermission")
+class BtManagerImpl @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter?
-) : BluetoothRepository {
+) : BtManager {
 
     companion object {
         private val BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
@@ -43,6 +45,7 @@ class BluetoothRepositoryImpl @Inject constructor(
             }
         }
     }
+
 
     override fun getPairedDevicesList(): List<BluetoothDevice> {
         val bondedDevices = bluetoothAdapter?.bondedDevices

@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
 
-interface BluetoothRepository {
+interface BtManager {
     val incomingMessage: LiveData<String>
     fun isBluetoothAvailable(): Boolean
     fun enableBluetooth(resultLauncher: ActivityResultLauncher<Intent>)

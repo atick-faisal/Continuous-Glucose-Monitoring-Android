@@ -4,14 +4,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import dev.atick.bluetooth.repository.BluetoothRepository
-import dev.atick.bluetooth.repository.BluetoothRepositoryImpl
+import dev.atick.bluetooth.repository.BtManager
+import dev.atick.bluetooth.repository.BtManagerImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class BluetoothRepositoryModule {
     @Binds
     abstract fun bindBluetoothRepository(
-        bluetoothRepositoryImpl: BluetoothRepositoryImpl
-    ): BluetoothRepository
+        bluetoothRepositoryImpl: BtManagerImpl
+    ): BtManager
 }

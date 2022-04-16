@@ -6,7 +6,5 @@ import androidx.lifecycle.ViewModel
 import dev.atick.core.utils.Event
 
 open class BaseViewModel : ViewModel() {
-    private val _toastMessage = MutableLiveData<Event<String>>()
-    private val toastMessage: LiveData<Event<String>>
-        get() = _toastMessage
+    val toastMessage = MutableLiveData<Event<String>>()
 }
