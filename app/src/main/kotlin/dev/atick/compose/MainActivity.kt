@@ -8,11 +8,18 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
+import dev.atick.bluetooth.utils.BtUtils
 import dev.atick.compose.ui.theme.JetpackComposeStarterTheme
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var btUtils: BtUtils
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -23,6 +30,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        btUtils.initialize(this) {
+            Logger.i("Bluetooth Setup Successful!")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        btUtils.setupBluetooth(this)
     }
 }
 

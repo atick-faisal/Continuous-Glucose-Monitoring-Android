@@ -14,7 +14,7 @@ import dev.atick.core.utils.extensions.resultLauncher
 import dev.atick.core.utils.extensions.showAlertDialog
 import javax.inject.Inject
 
-class BleUtilsImpl @Inject constructor(
+class BtUtilsImpl @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter?
 ) : BtUtils {
 
