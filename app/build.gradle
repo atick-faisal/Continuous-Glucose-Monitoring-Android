@@ -70,6 +70,8 @@ android {
 
 dependencies {
     implementation project(path: ':core')
+    implementation project(path: ':network')
+    implementation project(path: ':bluetooth')
 
     // ... Dagger Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")

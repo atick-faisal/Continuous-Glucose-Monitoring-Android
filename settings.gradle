@@ -9,3 +9,4 @@ rootProject.name = "BT Streaming"
 include ':app'
 include ':core'
 include ':network'
+include ':bluetooth'
