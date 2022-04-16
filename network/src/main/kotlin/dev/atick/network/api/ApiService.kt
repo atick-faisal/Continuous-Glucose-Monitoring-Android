@@ -1,3 +1,5 @@
 package dev.atick.network.api
 
-interface ApiService
+interface ApiService {
+    fun sendData()
+}

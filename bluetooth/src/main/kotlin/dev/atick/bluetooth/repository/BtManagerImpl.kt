@@ -12,8 +12,10 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.util.*
 import javax.inject.Inject
 
@@ -119,16 +121,14 @@ class BtManagerImpl @Inject constructor(
             CoroutineScope(Dispatchers.IO).launch {
                 kotlin.runCatching {
                     val mmInStream: InputStream = it.inputStream
-                    var numBytes: Int
+                    val bufferedReader = BufferedReader(
+                        InputStreamReader(mmInStream)
+                    )
                     while (true) {
-                        numBytes = mmInStream.read(mmBuffer)
-                        val data = String(
-                            mmBuffer
-                                .slice(0 until numBytes - 1)
-                                .toByteArray()
-                        )
-                        _incomingMessage.postValue(data)
-                        Logger.i(data)
+                        if (bufferedReader.ready()) {
+                            val data = bufferedReader.readLine()
+                            _incomingMessage.postValue(data)
+                        }
                     }
                 }.onFailure { throwable ->
                     when (throwable) {

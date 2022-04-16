@@ -19,6 +19,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,11 +28,17 @@ import dev.atick.bluetooth.repository.BtManager
 import dev.atick.bluetooth.utils.BtUtils
 import dev.atick.compose.ui.theme.JetpackComposeStarterTheme
 import dev.atick.core.ui.BaseViewModel
-import javax.inject.Inject
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.atick.core.utils.Event
+import dev.atick.core.utils.extensions.observe
 import dev.atick.core.utils.extensions.observeEvent
 import dev.atick.core.utils.extensions.showToast
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.lang.NumberFormatException
+import javax.inject.Inject
+
+private const val BUFFER_LEN = 10
+private const val UPDATE_INTERVAL = 1000L //... millis
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,6 +62,10 @@ class MainActivity : ComponentActivity() {
         observeEvent(viewModel.toastMessage) {
             showToast(it)
         }
+
+        observe(viewModel.incomingMessage) {
+            viewModel.updateBuffer(it)
+        }
     }
 
     override fun onResume() {
@@ -67,10 +79,14 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
-    val data by viewModel.data.observeAsState()
+    val data by viewModel.incomingMessage.observeAsState()
     val devices by viewModel.pairedDevicesList
 
     Column(Modifier.fillMaxSize()) {
+
+        Text(text = data ?: "0.0")
+        Spacer(modifier = Modifier.height(16.dp))
+
         LazyColumn {
             items(devices) { device ->
                 Button(onClick = { viewModel.connect(device) }) {
@@ -78,9 +94,6 @@ fun MainScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = data ?: "0.0")
     }
 }
 
@@ -89,10 +102,13 @@ fun MainScreen(
 class MainViewModel @Inject constructor(
     private val btManager: BtManager
 ) : BaseViewModel() {
+    private val buffer = MutableList(BUFFER_LEN) { 0.0F }
+    private var isConnected: Boolean = false
+
     val pairedDevicesList =
         mutableStateOf<List<BluetoothDevice>>(listOf())
 
-    val data = btManager.incomingMessage
+    val incomingMessage = btManager.incomingMessage
 
     init {
         fetchPairedDevices()
@@ -104,7 +120,27 @@ class MainViewModel @Inject constructor(
 
     fun connect(device: BluetoothDevice) {
         btManager.connect(device) {
+            isConnected = true
+            sendDataToServer()
             toastMessage.postValue(Event("Connected"))
+        }
+    }
+
+    fun updateBuffer(data: String) {
+        try {
+            buffer.add(data.toFloat())
+            buffer.removeFirst()
+        } catch (e: NumberFormatException) {
+            Logger.w("Can not convert to float")
+        }
+    }
+
+    private fun sendDataToServer() {
+        viewModelScope.launch {
+            while (isConnected) {
+                Logger.e(buffer.toString())
+                delay(UPDATE_INTERVAL)
+            }
         }
     }
 }
