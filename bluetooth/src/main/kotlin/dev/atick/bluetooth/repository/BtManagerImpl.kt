@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
@@ -33,7 +34,6 @@ class BtManagerImpl @Inject constructor(
         get() = _incomingMessage
 
     private var mmSocket: BluetoothSocket? = null
-    private val mmBuffer: ByteArray = ByteArray(1024)
 
     override fun isBluetoothAvailable(): Boolean {
         return bluetoothAdapter?.isEnabled ?: false

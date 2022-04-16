@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 
 interface BtManager {
     val incomingMessage: LiveData<String>
