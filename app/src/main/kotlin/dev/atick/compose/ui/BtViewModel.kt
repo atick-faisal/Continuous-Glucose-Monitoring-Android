@@ -2,6 +2,8 @@ package dev.atick.compose.ui
 
 import android.bluetooth.BluetoothDevice
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BtViewModel @Inject constructor(
     private val btManager: BtManager
-): BaseViewModel() {
+) : BaseViewModel() {
 
     companion object {
         private const val BUFFER_LEN = 10
@@ -24,7 +26,7 @@ class BtViewModel @Inject constructor(
     }
 
     private val buffer = MutableList(BUFFER_LEN) { 0.0F }
-    private var isConnected: Boolean = false
+    val isConnected = MutableLiveData<Event<Boolean>>()
 
     val pairedDevicesList =
         mutableStateOf<List<BluetoothDevice>>(listOf())
@@ -35,14 +37,14 @@ class BtViewModel @Inject constructor(
         fetchPairedDevices()
     }
 
-    private fun fetchPairedDevices() {
+    fun fetchPairedDevices() {
         pairedDevicesList.value = btManager.getPairedDevicesList()
     }
 
     fun connect(device: BluetoothDevice) {
         btManager.connect(device) {
-            isConnected = true
             sendDataToServer()
+            isConnected.postValue(Event(true))
             toastMessage.postValue(Event("Connected"))
         }
     }
@@ -58,7 +60,7 @@ class BtViewModel @Inject constructor(
 
     private fun sendDataToServer() {
         viewModelScope.launch {
-            while (isConnected) {
+            while (isConnected.value?.peekContent() == true) {
                 Logger.e(buffer.toString())
                 delay(UPDATE_INTERVAL)
             }
@@ -68,6 +70,7 @@ class BtViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         btManager.close {
+            isConnected.postValue(Event(true))
             Logger.w("Connection closed!")
         }
     }

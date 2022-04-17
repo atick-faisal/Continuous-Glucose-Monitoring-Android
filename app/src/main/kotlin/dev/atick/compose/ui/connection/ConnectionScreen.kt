@@ -33,7 +33,7 @@ fun ConnectionScreen(
                 .fillMaxWidth()
                 .height(64.dp)
                 .align(Alignment.BottomCenter),
-            onClick = { /*TODO*/ }
+            onClick = { viewModel.fetchPairedDevices() }
         ) {
             Text(text = "Refresh Device List")
         }
