@@ -3,14 +3,10 @@ package dev.atick.compose
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -37,7 +32,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.atick.bluetooth.repository.BtManager
 import dev.atick.bluetooth.utils.BtUtils
-import dev.atick.compose.ui.BtViewModel
 import dev.atick.compose.ui.theme.JetpackComposeStarterTheme
 import dev.atick.core.ui.BaseViewModel
 import dev.atick.core.utils.Event
@@ -48,7 +42,6 @@ import dev.atick.network.data.Request
 import dev.atick.network.repository.GlucoseRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.NumberFormatException
 import javax.inject.Inject
 
 private const val BUFFER_LEN = 10
@@ -319,7 +312,7 @@ class MainViewModel @Inject constructor(
                     )
                 )
                 glucose = response?.glucosePredict ?: "NULL"
-                Logger.e(buffer.toString())
+                Logger.w(buffer.toString())
                 delay(UPDATE_INTERVAL)
             }
         }
