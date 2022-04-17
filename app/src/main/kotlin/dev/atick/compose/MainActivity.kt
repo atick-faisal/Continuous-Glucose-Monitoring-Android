@@ -1,10 +1,13 @@
 package dev.atick.compose
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,30 +44,17 @@ private const val BUFFER_LEN = 10
 private const val UPDATE_INTERVAL = 1000L //... millis
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var btUtils: BtUtils
-    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            JetpackComposeStarterTheme {
-                MainScreen()
-            }
-        }
+        setContentView(R.layout.activity_main)
 
         btUtils.initialize(this) {
             Logger.i("Bluetooth Setup Successful!")
-        }
-
-        observeEvent(viewModel.toastMessage) {
-            showToast(it)
-        }
-
-        observe(viewModel.incomingMessage) {
-            viewModel.updateBuffer(it)
         }
     }
 
@@ -74,8 +64,43 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//@AndroidEntryPoint
+//class MainActivity : ComponentActivity() {
+//
+//    @Inject
+//    lateinit var btUtils: BtUtils
+//    private val viewModel: MainViewModel by viewModels()
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            JetpackComposeStarterTheme {
+//                MainScreen()
+//            }
+//        }
+//
+//        btUtils.initialize(this) {
+//            Logger.i("Bluetooth Setup Successful!")
+//        }
+//
+//        observeEvent(viewModel.toastMessage) {
+//            showToast(it)
+//        }
+//
+//        observe(viewModel.incomingMessage) {
+//            viewModel.updateBuffer(it)
+//        }
+//    }
+//
+//    override fun onResume() {
+//        super.onResume()
+//        btUtils.setupBluetooth(this)
+//    }
+//}
+
 
 @Composable
+@SuppressLint("MissingPermission")
 fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
@@ -141,6 +166,13 @@ class MainViewModel @Inject constructor(
                 Logger.e(buffer.toString())
                 delay(UPDATE_INTERVAL)
             }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        btManager.close {
+            Logger.w("Connection closed!")
         }
     }
 }
