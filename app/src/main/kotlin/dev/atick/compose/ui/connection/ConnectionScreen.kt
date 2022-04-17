@@ -43,22 +43,22 @@ fun ConnectionScreen(
                 text = "Paired Devices",
                 fontSize = 32.sp
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(devices) { device ->
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    onClick = { viewModel.connect(device) }
-                ) {
-                    Text(text = device.name ?: "Unknown")
+            LazyColumn {
+                items(devices) { device ->
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        onClick = { viewModel.connect(device) }
+                    ) {
+                        Text(text = device.name ?: "Unknown")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
