@@ -18,6 +18,7 @@ import dev.atick.compose.ui.BtViewModel
 @Composable
 @SuppressLint("MissingPermission")
 fun ConnectionScreen(
+    onDeviceClick: () -> Unit,
     viewModel: BtViewModel = viewModel()
 ) {
 
@@ -52,7 +53,10 @@ fun ConnectionScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        onClick = { viewModel.connect(device) }
+                        onClick = {
+                            viewModel.setDevice(device)
+                            onDeviceClick()
+                        }
                     ) {
                         Text(text = device.name ?: "Unknown")
                     }

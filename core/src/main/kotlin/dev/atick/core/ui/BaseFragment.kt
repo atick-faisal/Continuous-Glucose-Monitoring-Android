@@ -23,8 +23,15 @@ abstract class BaseComposeFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initialize()
+    }
+
     @Composable
     abstract fun ComposeUi()
 
     open fun observeStates() {}
+
+    open fun initialize() {}
 }
