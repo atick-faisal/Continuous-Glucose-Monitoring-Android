@@ -312,10 +312,11 @@ class MainViewModel @Inject constructor(
     fun sendDataToServer() {
         viewModelScope.launch {
             while (true) {
+                delay(UPDATE_INTERVAL)
                 val ppgData = buffer.joinToString(",")
                 val genderInt =
                     if (gender.lowercase() == "male") 0 else 1
-                val metadata = "$age,$bmi,$dia,$sys,$type,$pulse,$genderInt"
+                val metadata = "$age,$bmi,$dia,$type,$genderInt,$pulse,$sys"
                 try {
                     val response = glucoseRepository.getGlucosePrediction(
                         Request(
@@ -329,8 +330,8 @@ class MainViewModel @Inject constructor(
                         Event("Server Error")
                     )
                 }
-                Logger.w(buffer.toString())
-                delay(UPDATE_INTERVAL)
+                Logger.w(metadata)
+                Logger.w(ppgData)
             }
         }
     }
