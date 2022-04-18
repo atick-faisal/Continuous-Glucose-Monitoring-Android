@@ -44,8 +44,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val BUFFER_LEN = 10
-private const val UPDATE_INTERVAL = 1000L //... millis
+private const val BUFFER_LEN = 2048
+private const val UPDATE_INTERVAL = 10000L //... millis
 
 //@AndroidEntryPoint
 //class MainActivity : AppCompatActivity() {
@@ -133,6 +133,17 @@ fun MainScreen(
                             Text(text = device.name ?: "Unknown")
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    onClick = { viewModel.fetchPairedDevices() }
+                ) {
+                    Text(text = "Refresh Device List")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -278,7 +289,7 @@ class MainViewModel @Inject constructor(
         fetchPairedDevices()
     }
 
-    private fun fetchPairedDevices() {
+    fun fetchPairedDevices() {
         pairedDevicesList.value = btManager.getPairedDevicesList()
     }
 
@@ -305,13 +316,19 @@ class MainViewModel @Inject constructor(
                 val genderInt =
                     if (gender.lowercase() == "male") 0 else 1
                 val metadata = "$age,$bmi,$dia,$sys,$type,$pulse,$genderInt"
-                val response = glucoseRepository.getGlucosePrediction(
-                    Request(
-                        ppgData = ppgData,
-                        metadata = metadata
+                try {
+                    val response = glucoseRepository.getGlucosePrediction(
+                        Request(
+                            ppgData = ppgData,
+                            metadata = metadata
+                        )
                     )
-                )
-                glucose = response?.glucosePredict ?: "NULL"
+                    glucose = response?.glucosePredict ?: "NULL"
+                } catch (e: Exception) {
+                    toastMessage.postValue(
+                        Event("Server Error")
+                    )
+                }
                 Logger.w(buffer.toString())
                 delay(UPDATE_INTERVAL)
             }
