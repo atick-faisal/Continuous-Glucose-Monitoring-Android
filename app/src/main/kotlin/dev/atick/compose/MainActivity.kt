@@ -1,5 +1,6 @@
 package dev.atick.compose
 
+import ai.atick.material.MaterialColor
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -126,21 +129,28 @@ fun MainScreen(
 
                 LazyColumn {
                     items(devices) { device ->
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
+                        OutlinedButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp),
                             onClick = { viewModel.connect(device) }
                         ) {
-                            Text(text = device.name ?: "Unknown")
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = device.name ?: "Unknown")
+                                Text(text = device.address ?: "NULL")
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = { viewModel.fetchPairedDevices() }
                 ) {
                     Text(text = "Refresh Device List")
@@ -150,113 +160,130 @@ fun MainScreen(
             }
         }
 
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                text = "Additional Information",
-                fontSize = 24.sp
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Glucose: ${viewModel.glucose}",
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center,
-                color = Color.Blue
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = ppg ?: "0",
-                label = {
-                    Text(text = "PPG")
-                },
-                onValueChange = { }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.age,
-                label = {
-                    Text(text = "Age")
-                },
-                onValueChange = { viewModel.age = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.bmi,
-                label = {
-                    Text(text = "BMI")
-                },
-                onValueChange = { viewModel.bmi = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.dia,
-                label = {
-                    Text(text = "Diastolic Pressure")
-                },
-                onValueChange = { viewModel.dia = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.sys,
-                label = {
-                    Text(text = "Systolic Pressure")
-                },
-                onValueChange = { viewModel.sys = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.type,
-                label = {
-                    Text(text = "Diabetes Type")
-                },
-                onValueChange = { viewModel.type = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.pulse,
-                label = {
-                    Text(text = "Pulse")
-                },
-                onValueChange = { viewModel.pulse = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.gender,
-                label = {
-                    Text(text = "Gender")
-                },
-                onValueChange = { viewModel.gender = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                onClick = { viewModel.sendDataToServer() }
+        AnimatedVisibility(visible = viewModel.isConnected) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                Text(text = "Start")
+                Text(
+                    text = "Additional Information",
+                    fontSize = 24.sp
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Glucose: ${viewModel.glucose} mg/dL",
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center,
+                    color = when (viewModel.glucose) {
+                        in 0.0F..70.0F -> MaterialColor.Red400
+                        in 70.0F..126.0F -> MaterialColor.Blue400
+                        in 126.0F..180.0F -> MaterialColor.Teal400
+                        in 126.0F..180.0F -> MaterialColor.Indigo400
+                        in 180.0F..248.0F -> MaterialColor.Teal400
+                        in 248.0F..999.0F -> MaterialColor.Yellow400
+                        else -> MaterialColor.Red400
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = ppg ?: "0",
+                    label = {
+                        Text(text = "PPG")
+                    },
+                    onValueChange = { }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.age,
+                    label = {
+                        Text(text = "Age")
+                    },
+                    onValueChange = { viewModel.age = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.bmi,
+                    label = {
+                        Text(text = "BMI")
+                    },
+                    onValueChange = { viewModel.bmi = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.dia,
+                    label = {
+                        Text(text = "Diastolic Pressure")
+                    },
+                    onValueChange = { viewModel.dia = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.sys,
+                    label = {
+                        Text(text = "Systolic Pressure")
+                    },
+                    onValueChange = { viewModel.sys = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.type,
+                    label = {
+                        Text(text = "Diabetes Type")
+                    },
+                    onValueChange = { viewModel.type = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.pulse,
+                    label = {
+                        Text(text = "Pulse")
+                    },
+                    onValueChange = { viewModel.pulse = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.gender,
+                    label = {
+                        Text(text = "Gender")
+                    },
+                    onValueChange = { viewModel.gender = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onClick = { viewModel.sendDataToServer() }
+                ) {
+                    Text(text = "Start")
+                }
+
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onClick = { viewModel.disconnect() }
+                ) {
+                    Text(text = "Disconnect")
+                }
             }
         }
     }
@@ -283,7 +310,7 @@ class MainViewModel @Inject constructor(
     var type by mutableStateOf("1")
     var pulse by mutableStateOf("90")
     var gender by mutableStateOf("Male")
-    var glucose by mutableStateOf("0")
+    var glucose by mutableStateOf(0.0F)
 
     init {
         fetchPairedDevices()
@@ -310,6 +337,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun sendDataToServer() {
+        toastMessage.postValue(
+            Event("Streaming Data to the Server ...")
+        )
         viewModelScope.launch {
             while (true) {
                 delay(UPDATE_INTERVAL)
@@ -324,7 +354,7 @@ class MainViewModel @Inject constructor(
                             metadata = metadata
                         )
                     )
-                    glucose = response?.glucosePredict ?: "NULL"
+                    glucose = response?.glucosePredict?.toFloat() ?: 0.0F
                 } catch (e: Exception) {
                     toastMessage.postValue(
                         Event("Server Error")
@@ -336,10 +366,18 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun disconnect() {
         btManager.close {
+            isConnected = false
+            toastMessage.postValue(
+                Event("Disconnected!")
+            )
             Logger.w("Connection closed!")
         }
+    }
+
+    override fun onCleared() {
+        disconnect()
+        super.onCleared()
     }
 }
