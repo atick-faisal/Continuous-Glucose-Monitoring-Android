@@ -4,6 +4,7 @@ import ai.atick.material.MaterialColor
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.telephony.SmsManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedButton
@@ -24,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -201,6 +203,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.age,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "Age")
                     },
@@ -211,6 +215,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.bmi,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "BMI")
                     },
@@ -221,6 +227,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.dia,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "Diastolic Pressure")
                     },
@@ -231,6 +239,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.sys,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "Systolic Pressure")
                     },
@@ -241,6 +251,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.type,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "Diabetes Type")
                     },
@@ -251,6 +263,8 @@ fun MainScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewModel.pulse,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number),
                     label = {
                         Text(text = "Pulse")
                     },
@@ -265,6 +279,18 @@ fun MainScreen(
                         Text(text = "Gender")
                     },
                     onValueChange = { viewModel.gender = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.phone,
+                    keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    label = {
+                        Text(text = "Emergency Contact")
+                    },
+                    onValueChange = { viewModel.phone = it }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -311,6 +337,7 @@ class MainViewModel @Inject constructor(
     var pulse by mutableStateOf("90")
     var gender by mutableStateOf("Male")
     var glucose by mutableStateOf(0.0F)
+    var phone by mutableStateOf("+974")
 
     init {
         fetchPairedDevices()
@@ -341,7 +368,7 @@ class MainViewModel @Inject constructor(
             Event("Streaming Data to the Server ...")
         )
         viewModelScope.launch {
-            while (true) {
+            while (isConnected) {
                 delay(UPDATE_INTERVAL)
                 val ppgData = buffer.joinToString(",")
                 val genderInt =
@@ -355,6 +382,9 @@ class MainViewModel @Inject constructor(
                         )
                     )
                     glucose = response?.glucosePredict?.toFloat() ?: 0.0F
+                    if (glucose < 70.0F || glucose > 200.0F) {
+                        sendText(phone, glucose)
+                    }
                 } catch (e: Exception) {
                     toastMessage.postValue(
                         Event("Server Error")
@@ -375,6 +405,25 @@ class MainViewModel @Inject constructor(
             Logger.w("Connection closed!")
         }
     }
+
+    private fun sendText(phone: String, glucose: Float) {
+        val smsManager = SmsManager.getDefault()
+        smsManager?.let {
+            it.sendTextMessage(
+                phone,
+                null,
+                "Help! Glucose value in critical range." +
+                    " Last recorded value $glucose mg/dL",
+                null,
+                null
+            )
+            toastMessage.postValue(
+                Event("SMS sent")
+            )
+            Logger.w("SMS SENT")
+        }
+    }
+
 
     override fun onCleared() {
         disconnect()
