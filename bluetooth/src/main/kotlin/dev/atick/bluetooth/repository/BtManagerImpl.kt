@@ -3,15 +3,15 @@ package dev.atick.bluetooth.repository
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.orhanobut.logger.Logger
+import dev.atick.core.utils.Event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
@@ -21,31 +21,29 @@ import java.util.*
 import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
-class BtManagerImpl @Inject constructor(
-    private val bluetoothAdapter: BluetoothAdapter?
-) : BtManager {
+class BtManagerImpl @Inject constructor() : BtManager {
 
     companion object {
-        private val BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+        private val BT_UUID =
+            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
+
+    private val _isConnected = MutableLiveData<Event<Boolean>>()
+    override val isConnected: LiveData<Event<Boolean>>
+        get() = _isConnected
 
     private val _incomingMessage = MutableLiveData<String>()
     override val incomingMessage: LiveData<String>
         get() = _incomingMessage
 
+    private var bluetoothAdapter: BluetoothAdapter? = null
     private var mmSocket: BluetoothSocket? = null
 
-    override fun isBluetoothAvailable(): Boolean {
-        return bluetoothAdapter?.isEnabled ?: false
-    }
-
-    override fun enableBluetooth(resultLauncher: ActivityResultLauncher<Intent>) {
-        bluetoothAdapter?.let {
-            if (!it.isEnabled) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                resultLauncher.launch(enableBtIntent)
-            }
-        }
+    override fun initialize(context: Context) {
+        val bluetoothManager = context.getSystemService(
+            Context.BLUETOOTH_SERVICE
+        ) as BluetoothManager
+        bluetoothAdapter = bluetoothManager.adapter
     }
 
 
@@ -58,7 +56,11 @@ class BtManagerImpl @Inject constructor(
         return pairedDevices.toList()
     }
 
-    override fun connect(bluetoothDevice: BluetoothDevice, onConnect: () -> Unit) {
+    override fun connect(
+        bluetoothDevice: BluetoothDevice,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         bluetoothAdapter?.cancelDiscovery()
         CoroutineScope(Dispatchers.IO).launch {
             kotlin.runCatching {
@@ -70,14 +72,17 @@ class BtManagerImpl @Inject constructor(
                 }
                 mmSocket?.connect()
             }.onSuccess {
+                _isConnected.postValue(Event(true))
                 Logger.i("BLUETOOTH DEVICE CONNECTED")
-                onConnect.invoke()
+                onSuccess.invoke()
                 handleBluetoothClient()
             }.onFailure { throwable ->
+                _isConnected.postValue(Event(false))
                 when (throwable) {
                     is IOException -> Logger.i("CONNECTION FAILED")
                     else -> throwable.printStackTrace()
                 }
+                onFailure.invoke()
             }
         }
     }
@@ -105,6 +110,7 @@ class BtManagerImpl @Inject constructor(
                 kotlin.runCatching {
                     socket.close()
                 }.onSuccess {
+                    _isConnected.postValue(Event(false))
                     onSuccess.invoke()
                 }.onFailure { throwable ->
                     when (throwable) {
@@ -124,13 +130,14 @@ class BtManagerImpl @Inject constructor(
                     val bufferedReader = BufferedReader(
                         InputStreamReader(mmInStream)
                     )
-                    while (true) {
+                    while (_isConnected.value?.peekContent() == true) {
                         if (bufferedReader.ready()) {
                             val data = bufferedReader.readLine()
                             _incomingMessage.postValue(data)
                         }
                     }
                 }.onFailure { throwable ->
+                    _isConnected.postValue(Event(false))
                     when (throwable) {
                         is IOException -> Logger.i("SOCKET CLOSED")
                         else -> throwable.printStackTrace()
