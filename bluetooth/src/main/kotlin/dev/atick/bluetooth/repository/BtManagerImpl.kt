@@ -3,9 +3,7 @@ package dev.atick.bluetooth.repository
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.orhanobut.logger.Logger
@@ -21,7 +19,9 @@ import java.util.*
 import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
-class BtManagerImpl @Inject constructor() : BtManager {
+class BtManagerImpl @Inject constructor(
+    private val bluetoothAdapter: BluetoothAdapter?
+) : BtManager {
 
     companion object {
         private val BT_UUID =
@@ -36,20 +36,12 @@ class BtManagerImpl @Inject constructor() : BtManager {
     override val incomingMessage: LiveData<String>
         get() = _incomingMessage
 
-    private var bluetoothAdapter: BluetoothAdapter? = null
     private var mmSocket: BluetoothSocket? = null
-
-    override fun initialize(context: Context) {
-        val bluetoothManager = context.getSystemService(
-            Context.BLUETOOTH_SERVICE
-        ) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
-    }
-
 
     override fun getPairedDevicesList(): List<BluetoothDevice> {
         val bondedDevices = bluetoothAdapter?.bondedDevices
         val pairedDevices = mutableListOf<BluetoothDevice>()
+        Logger.i("FOUND ${bondedDevices?.size} DEVICES")
         bondedDevices?.forEach { device ->
             pairedDevices.add(device)
         }
@@ -58,8 +50,7 @@ class BtManagerImpl @Inject constructor() : BtManager {
 
     override fun connect(
         bluetoothDevice: BluetoothDevice,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
+        onSuccess: () -> Unit
     ) {
         bluetoothAdapter?.cancelDiscovery()
         CoroutineScope(Dispatchers.IO).launch {
@@ -82,7 +73,6 @@ class BtManagerImpl @Inject constructor() : BtManager {
                     is IOException -> Logger.i("CONNECTION FAILED")
                     else -> throwable.printStackTrace()
                 }
-                onFailure.invoke()
             }
         }
     }

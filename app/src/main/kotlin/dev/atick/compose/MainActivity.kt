@@ -5,9 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
 import android.telephony.SmsManager
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,12 +35,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.atick.bluetooth.repository.BtManager
 import dev.atick.bluetooth.utils.BtUtils
-import dev.atick.compose.ui.theme.JetpackComposeStarterTheme
 import dev.atick.core.ui.BaseViewModel
 import dev.atick.core.utils.Event
-import dev.atick.core.utils.extensions.observe
-import dev.atick.core.utils.extensions.observeEvent
-import dev.atick.core.utils.extensions.showToast
 import dev.atick.network.data.Request
 import dev.atick.network.repository.GlucoseRepository
 import kotlinx.coroutines.delay
@@ -52,18 +46,53 @@ import javax.inject.Inject
 private const val BUFFER_LEN = 2048
 private const val UPDATE_INTERVAL = 10000L //... millis
 
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var btUtils: BtUtils
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        btUtils.initialize(this) {
+            Logger.i("Bluetooth Setup Successful!")
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        btUtils.setupBluetooth(this)
+    }
+}
+
 //@AndroidEntryPoint
-//class MainActivity : AppCompatActivity() {
+//class MainActivity : ComponentActivity() {
 //
 //    @Inject
 //    lateinit var btUtils: BtUtils
+//    private val viewModel: MainViewModel by viewModels()
 //
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
+//        setContent {
+//            JetpackComposeStarterTheme {
+//                MainScreen()
+//            }
+//        }
 //
 //        btUtils.initialize(this) {
 //            Logger.i("Bluetooth Setup Successful!")
+//        }
+//
+//        observeEvent(viewModel.toastMessage) {
+//            showToast(it)
+//        }
+//
+//        observe(viewModel.incomingMessage) {
+//            viewModel.updateBuffer(it)
 //        }
 //    }
 //
@@ -72,40 +101,6 @@ private const val UPDATE_INTERVAL = 10000L //... millis
 //        btUtils.setupBluetooth(this)
 //    }
 //}
-
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var btUtils: BtUtils
-    private val viewModel: MainViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            JetpackComposeStarterTheme {
-                MainScreen()
-            }
-        }
-
-        btUtils.initialize(this) {
-            Logger.i("Bluetooth Setup Successful!")
-        }
-
-        observeEvent(viewModel.toastMessage) {
-            showToast(it)
-        }
-
-        observe(viewModel.incomingMessage) {
-            viewModel.updateBuffer(it)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        btUtils.setupBluetooth(this)
-    }
-}
 
 
 @Composable

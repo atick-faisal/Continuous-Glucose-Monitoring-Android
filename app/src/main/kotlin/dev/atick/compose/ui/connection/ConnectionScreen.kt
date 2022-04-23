@@ -32,7 +32,6 @@ fun ConnectionScreen(
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
                 .align(Alignment.BottomCenter),
             onClick = { viewModel.fetchPairedDevices() }
         ) {
@@ -50,11 +49,9 @@ fun ConnectionScreen(
             LazyColumn {
                 items(devices) { device ->
                     Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            viewModel.setDevice(device)
+                            viewModel.connect(device)
                             onDeviceClick()
                         }
                     ) {
