@@ -28,7 +28,7 @@ class BtManagerImpl @Inject constructor(
             UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
 
-    private val _isConnected = MutableLiveData<Event<Boolean>>()
+    private val _isConnected = MutableLiveData(Event(false))
     override val isConnected: LiveData<Event<Boolean>>
         get() = _isConnected
 

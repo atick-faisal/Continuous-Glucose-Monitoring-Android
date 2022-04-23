@@ -1,66 +1,45 @@
 package dev.atick.compose.ui.connection
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.atick.compose.ui.BtViewModel
+import dev.atick.compose.ui.connection.components.DeviceList
 
 @Composable
 @SuppressLint("MissingPermission")
 fun ConnectionScreen(
-    onDeviceClick: () -> Unit,
     viewModel: BtViewModel = viewModel()
 ) {
 
+    val isConnected by viewModel.isConnected.observeAsState()
     val devices by viewModel.pairedDevicesList
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            onClick = { viewModel.fetchPairedDevices() }
+        AnimatedVisibility(
+            visible = isConnected?.peekContent() == false
         ) {
-            Text(text = "Refresh Device List")
-        }
-
-        Column(Modifier.fillMaxSize()) {
-            Text(
-                text = "Paired Devices",
-                fontSize = 32.sp
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LazyColumn {
-                items(devices) { device ->
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            viewModel.connect(device)
-                            onDeviceClick()
-                        }
-                    ) {
-                        Text(text = device.name ?: "Unknown")
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
+            DeviceList(
+                deviceList = devices,
+                onDeviceClick = { device ->
+                    viewModel.connect(device)
+                },
+                onRefreshClick = {
+                    viewModel.fetchPairedDevices()
                 }
-            }
+            )
         }
     }
 }

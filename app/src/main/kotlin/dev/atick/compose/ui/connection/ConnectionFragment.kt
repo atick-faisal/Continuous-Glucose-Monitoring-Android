@@ -16,7 +16,7 @@ class ConnectionFragment : BaseComposeFragment() {
 
     @Composable
     override fun ComposeUi() {
-        ConnectionScreen(::navigateToHomeFragment)
+        ConnectionScreen()
     }
 
     override fun observeStates() {

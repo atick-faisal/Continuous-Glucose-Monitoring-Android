@@ -1,6 +1,7 @@
 package dev.atick.compose.ui
 
 import android.bluetooth.BluetoothDevice
+import android.telephony.SmsManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +29,7 @@ class BtViewModel @Inject constructor(
         private const val UPDATE_INTERVAL = 1000L //... millis
     }
 
-    private val buffer = MutableList(BUFFER_LEN) { 0.0F }
+    private val buffer = MutableList(BUFFER_LEN) { 1.0F }
 
     val pairedDevicesList =
         mutableStateOf<List<BluetoothDevice>>(listOf())
@@ -43,7 +44,8 @@ class BtViewModel @Inject constructor(
     var type by mutableStateOf("1")
     var pulse by mutableStateOf("90")
     var gender by mutableStateOf("Male")
-    var glucose by mutableStateOf("0")
+    var glucose by mutableStateOf(0.0F)
+    var phone by mutableStateOf("+974")
 
     init {
         fetchPairedDevices()
@@ -60,7 +62,6 @@ class BtViewModel @Inject constructor(
     }
 
     fun updateBuffer(data: String) {
-        Logger.w(data)
         try {
             buffer.add(data.toFloat())
             buffer.removeFirst()
@@ -70,29 +71,68 @@ class BtViewModel @Inject constructor(
     }
 
     fun sendDataToServer() {
+        toastMessage.postValue(
+            Event("Streaming Data to the Server ...")
+        )
         viewModelScope.launch {
             while (isConnected.value?.peekContent() == true) {
+                delay(UPDATE_INTERVAL)
                 val ppgData = buffer.joinToString(",")
                 val genderInt =
                     if (gender.lowercase() == "male") 0 else 1
-                val metadata = "$age,$bmi,$dia,$sys,$type,$pulse,$genderInt"
-                val response = glucoseRepository.getGlucosePrediction(
-                    Request(
-                        ppgData = ppgData,
-                        metadata = metadata
+                val metadata = "$age,$bmi,$dia,$type,$genderInt,$pulse,$sys"
+                try {
+                    val response = glucoseRepository.getGlucosePrediction(
+                        Request(
+                            ppgData = ppgData,
+                            metadata = metadata
+                        )
                     )
-                )
-                glucose = response?.glucosePredict ?: "NULL"
-                Logger.e(buffer.toString())
-                delay(UPDATE_INTERVAL)
+                    glucose = response?.glucosePredict?.toFloat() ?: 0.0F
+                    if (glucose < 70.0F || glucose > 200.0F) {
+                        sendText(phone, glucose)
+                    }
+                } catch (e: Exception) {
+                    toastMessage.postValue(
+                        Event("Server Error")
+                    )
+                }
+                Logger.w(metadata)
+                Logger.w(ppgData)
             }
         }
     }
 
-    override fun onCleared() {
+    fun disconnect() {
         btManager.close {
+            toastMessage.postValue(
+                Event("Disconnected!")
+            )
             Logger.w("CONNECTION CLOSED!")
         }
+    }
+
+    private fun sendText(phone: String, glucose: Float) {
+        val smsManager = SmsManager.getDefault()
+        smsManager?.let {
+            it.sendTextMessage(
+                phone,
+                null,
+                "Help! Glucose value in critical range." +
+                    " Last recorded value $glucose mg/dL",
+                null,
+                null
+            )
+            toastMessage.postValue(
+                Event("SMS sent")
+            )
+            Logger.w("SMS SENT")
+        }
+    }
+
+
+    override fun onCleared() {
+        disconnect()
         super.onCleared()
     }
 }
