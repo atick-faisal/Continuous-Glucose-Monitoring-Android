@@ -5,6 +5,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.atick.compose.ui.BtViewModel
+import dev.atick.compose.ui.theme.ComposeTheme
 import dev.atick.core.ui.BaseComposeFragment
 import dev.atick.core.utils.extensions.observeEvent
 
@@ -16,7 +17,9 @@ class ConnectionFragment : BaseComposeFragment() {
 
     @Composable
     override fun ComposeUi() {
-        ConnectionScreen()
+        ComposeTheme {
+            ConnectionScreen()
+        }
     }
 
     override fun observeStates() {
