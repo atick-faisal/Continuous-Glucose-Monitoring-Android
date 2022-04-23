@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "dev.atick.networkbt",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 6,
+      "versionName": "3.1.1",
+      "outputFile": "app_release_v3.1.1_22.04.2022 01.43 AM.apk"
+    }
+  ],
+  "elementType": "File"
+}
