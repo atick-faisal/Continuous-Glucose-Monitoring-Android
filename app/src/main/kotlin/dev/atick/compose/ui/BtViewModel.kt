@@ -2,6 +2,7 @@ package dev.atick.compose.ui
 
 import android.bluetooth.BluetoothDevice
 import android.telephony.SmsManager
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +30,8 @@ class BtViewModel @Inject constructor(
     companion object {
         private const val BUFFER_LEN = 2048
         private const val UPDATE_INTERVAL = 10000L //... millis
+        private const val GLUCOSE_LOW = 70.0F
+        private const val GLUCOSE_HIGH = 200.0F
     }
 
     private val buffer = MutableList(BUFFER_LEN) { 1.0F }
@@ -52,8 +55,21 @@ class BtViewModel @Inject constructor(
     var type by mutableStateOf("1")
     var pulse by mutableStateOf("90")
     var gender by mutableStateOf("Male")
-    var glucose by mutableStateOf(0.0F)
+    var glucose by mutableStateOf(-1.0F)
     var phone by mutableStateOf("+974")
+
+//    var glucoseWarning by mutableStateOf(
+//        (glucose < GLUCOSE_LOW
+//            || glucose > GLUCOSE_HIGH)
+//            && glucose != -1.0F
+//    )
+
+    val glucoseWarning: MutableState<Boolean>
+        get() = mutableStateOf(
+            (glucose < GLUCOSE_LOW
+                || glucose > GLUCOSE_HIGH)
+                && glucose != -1.0F
+        )
 
     init {
         fetchPairedDevices()
@@ -93,12 +109,12 @@ class BtViewModel @Inject constructor(
             counter = 0
         }
 
-        counter ++
+        counter++
     }
 
     fun sendDataToServer() {
         toastMessage.postValue(
-            Event("Streaming Data to the Server ...")
+            Event("Streaming Data to the Server")
         )
         viewModelScope.launch {
             while (isConnected.value?.peekContent() == true) {
@@ -115,7 +131,7 @@ class BtViewModel @Inject constructor(
                         )
                     )
                     glucose = response?.glucosePredict?.toFloat() ?: 0.0F
-                    if (glucose < 70.0F || glucose > 200.0F) {
+                    if (glucoseWarning.value) {
                         sendText(phone, glucose)
                     }
                 } catch (e: Exception) {
@@ -150,7 +166,7 @@ class BtViewModel @Inject constructor(
                 null
             )
             toastMessage.postValue(
-                Event("SMS sent")
+                Event("SMS Sent to Emergency Contact")
             )
             Logger.w("SMS SENT")
         }

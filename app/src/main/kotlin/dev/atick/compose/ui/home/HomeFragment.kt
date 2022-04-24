@@ -39,4 +39,6 @@ class HomeFragment : BaseComposeFragment() {
             HomeFragmentDirections.actionHomeFragmentToConnectionFragment()
         )
     }
+
+
 }

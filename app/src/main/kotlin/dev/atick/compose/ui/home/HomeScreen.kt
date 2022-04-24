@@ -66,5 +66,22 @@ fun HomeScreen(
                 }
             }
         }
+
+        if (viewModel.glucoseWarning.value) {
+            Snackbar(
+                action = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter),
+                backgroundColor = MaterialTheme.colors.error
+
+            ) { Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                text = "Glucose Level is Critical",
+                textAlign = TextAlign.Center
+            ) }
+        }
     }
 }

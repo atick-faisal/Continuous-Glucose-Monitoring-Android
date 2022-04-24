@@ -22,8 +22,6 @@ fun Form(
     onDisconnect: () -> Unit,
     viewModel: BtViewModel = viewModel()
 ) {
-    val ppg by viewModel.incomingMessage.observeAsState()
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,5 +193,7 @@ fun Form(
                 color = MaterialTheme.colors.error
             )
         }
+
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
