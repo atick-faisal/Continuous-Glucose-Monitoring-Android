@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">CGM</string>
+    <string name="age">Age</string>
+    <string name="bmi">BMI</string>
+    <string name="gender">Gender</string>
+    <string name="type">Diabetes Type</string>
+    <string name="diabetes_type">1\/2</string>
+    <string name="hint_gender">Male/Female</string>
+    <string name="hint_sys">120</string>
+    <string name="sys">Systolic Pressure</string>
+    <string name="dia">Diastolic Pressure</string>
+    <string name="dia_hint">80</string>
+    <string name="pulse">Pulse</string>
+    <string name="hint_pulse">90</string>
+    <string name="phone">Emergency Contact</string>
+    <string name="hint_phone">+974 0000 0000</string>
+    <string name="hint_age">25</string>
+    <string name="hint_bmi">21</string>
 </resources>

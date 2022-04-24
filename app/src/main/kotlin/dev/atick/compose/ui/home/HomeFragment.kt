@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import dev.atick.compose.ui.BtViewModel
+import dev.atick.compose.ui.theme.ComposeTheme
 import dev.atick.core.ui.BaseComposeFragment
 import dev.atick.core.utils.extensions.observe
 
@@ -14,7 +15,9 @@ class HomeFragment : BaseComposeFragment() {
 
     @Composable
     override fun ComposeUi() {
-        HomeScreen()
+        ComposeTheme {
+            HomeScreen()
+        }
     }
 
     override fun observeStates() {
