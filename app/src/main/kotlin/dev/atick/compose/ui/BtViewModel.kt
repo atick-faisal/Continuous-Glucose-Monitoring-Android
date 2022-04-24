@@ -32,7 +32,7 @@ class BtViewModel @Inject constructor(
     }
 
     private val buffer = MutableList(BUFFER_LEN) { 1.0F }
-    val entries = mutableListOf<Entry>()
+    private val entries = mutableListOf<Entry>()
     var ppgDataset by mutableStateOf(
         LineDataSet(mutableListOf<Entry>(), "PPG")
     )
@@ -40,7 +40,7 @@ class BtViewModel @Inject constructor(
     val pairedDevicesList =
         mutableStateOf<List<BluetoothDevice>>(listOf())
 
-    var counter = 0
+    private var counter = 0
 
     val isConnected = btManager.isConnected
     val incomingMessage = btManager.incomingMessage

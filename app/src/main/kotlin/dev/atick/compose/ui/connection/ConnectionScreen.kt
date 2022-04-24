@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import dev.atick.compose.ui.common.components.TopBar
 import dev.atick.compose.ui.connection.components.DeviceList
 
 @Composable
+@ExperimentalMaterialApi
 @SuppressLint("MissingPermission")
 fun ConnectionScreen(
     viewModel: BtViewModel = viewModel()

@@ -1,5 +1,6 @@
 package dev.atick.compose.ui.connection
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -11,6 +12,7 @@ import dev.atick.core.utils.extensions.observeEvent
 
 
 @AndroidEntryPoint
+@ExperimentalMaterialApi
 class ConnectionFragment : BaseComposeFragment() {
 
     private val viewModel: BtViewModel by viewModels()
