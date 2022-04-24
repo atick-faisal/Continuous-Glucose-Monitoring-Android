@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.atick.bluetooth.repository.BtManager
@@ -25,14 +27,20 @@ class BtViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     companion object {
-        private const val BUFFER_LEN = 10
-        private const val UPDATE_INTERVAL = 1000L //... millis
+        private const val BUFFER_LEN = 2048
+        private const val UPDATE_INTERVAL = 10000L //... millis
     }
 
     private val buffer = MutableList(BUFFER_LEN) { 1.0F }
+    val entries = mutableListOf<Entry>()
+    var ppgDataset by mutableStateOf(
+        LineDataSet(mutableListOf<Entry>(), "PPG")
+    )
 
     val pairedDevicesList =
         mutableStateOf<List<BluetoothDevice>>(listOf())
+
+    var counter = 0
 
     val isConnected = btManager.isConnected
     val incomingMessage = btManager.incomingMessage
@@ -62,12 +70,30 @@ class BtViewModel @Inject constructor(
     }
 
     fun updateBuffer(data: String) {
-        try {
-            buffer.add(data.toFloat())
-            buffer.removeFirst()
-        } catch (e: NumberFormatException) {
-            Logger.e("PARSING ERROR")
+        viewModelScope.launch {
+            try {
+                buffer.removeFirst()
+                buffer.add(data.toFloat())
+            } catch (e: NumberFormatException) {
+                Logger.e("PARSING ERROR")
+            }
         }
+
+        viewModelScope.launch {
+            entries.clear()
+            buffer.forEachIndexed { index, value ->
+                entries.add(
+                    Entry(index.toFloat(), value)
+                )
+            }
+        }
+
+        if (counter % 100 == 0) {
+            ppgDataset = LineDataSet(entries, "PPG")
+            counter = 0
+        }
+
+        counter ++
     }
 
     fun sendDataToServer() {

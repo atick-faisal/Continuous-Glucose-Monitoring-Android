@@ -22,12 +22,13 @@ import dev.atick.compose.ui.common.components.TopBar
 import dev.atick.compose.ui.connection.components.DeviceList
 import dev.atick.compose.ui.home.components.Form
 import dev.atick.compose.ui.home.components.GlucoseCard
+import dev.atick.compose.ui.home.components.LinePlot
 
 @Composable
 fun HomeScreen(
+    onDisconnect: () -> Unit,
     viewModel: BtViewModel = viewModel()
 ) {
-    val ppg by viewModel.incomingMessage.observeAsState()
     val isConnected by viewModel.isConnected.observeAsState()
 
     Box(
@@ -41,7 +42,10 @@ fun HomeScreen(
         ) {
             TopBar(
                 title = "Additional Information",
-                onExitClick = { viewModel.disconnect() }
+                onExitClick = {
+                    onDisconnect.invoke()
+                    viewModel.disconnect()
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -58,10 +62,9 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Form()
+                    Form(onDisconnect)
                 }
             }
-
         }
     }
 }

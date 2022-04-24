@@ -8,16 +8,22 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.atick.compose.ui.BtViewModel
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.atick.compose.R
+import dev.atick.compose.ui.BtViewModel
 
 @Composable
 fun Form(
+    onDisconnect: () -> Unit,
     viewModel: BtViewModel = viewModel()
 ) {
+    val ppg by viewModel.incomingMessage.observeAsState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,6 +32,22 @@ fun Form(
                 rememberScrollState()
             )
     ) {
+        Text(
+            text = "PPG",
+            fontSize = 16.sp,
+            color = MaterialTheme.colors.onSurface
+        )
+
+        LinePlot(
+            dataset = viewModel.ppgDataset,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         CustomTextFiled(
             textFieldValue = viewModel.age,
             labelResourceId = R.string.age,
@@ -163,7 +185,10 @@ fun Form(
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(16.dp),
-            onClick = { viewModel.disconnect() }
+            onClick = {
+                onDisconnect.invoke()
+                viewModel.disconnect()
+            }
         ) {
             Text(
                 text = "Disconnect",

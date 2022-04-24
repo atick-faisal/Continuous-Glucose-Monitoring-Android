@@ -26,14 +26,12 @@ import dev.atick.bluetooth.utils.extensions.getDeviceIcon
 fun DeviceInfo(
     modifier: Modifier = Modifier,
     bluetoothDevice: BluetoothDevice,
-    isConnected: Boolean,
-    onClick: (BluetoothDevice) -> Unit
+    isConnected: Boolean
 ) {
     Row(
         modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .clickable { onClick(bluetoothDevice) },
+            .padding(24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

@@ -74,6 +74,9 @@ dependencies {
     implementation project(path: ':network')
     implementation project(path: ':bluetooth')
 
+    // ... Chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     // ... Dagger Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
