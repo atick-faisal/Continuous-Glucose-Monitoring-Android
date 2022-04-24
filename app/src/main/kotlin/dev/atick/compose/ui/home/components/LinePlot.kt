@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.LineData
@@ -63,10 +62,8 @@ fun LinePlot(
                     this.fillColor = context.getColor(R.color.primary)
                     this.fillAlpha = 40
                 } else {
-                    this.fillDrawable = ContextCompat.getDrawable(
-                        context,
-                        R.drawable.green_gradient
-                    )
+                    this.fillColor = context.getColor(R.color.primary)
+                    this.fillAlpha = 40
                 }
                 setDrawValues(false)
                 setDrawFilled(true)

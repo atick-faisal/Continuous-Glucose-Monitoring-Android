@@ -33,19 +33,6 @@ fun DeviceList(
                     bluetoothDevice = device,
                     onClick = onDeviceClick
                 )
-//                OutlinedButton(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(64.dp),
-//                    onClick = { onDeviceClick(device) }
-//                ) {
-//                    Column(
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        Text(text = device.name ?: "Unknown")
-//                        Text(text = device.address ?: "NULL")
-//                    }
-//                }
 
                 Spacer(modifier = Modifier.height(8.dp))
             }

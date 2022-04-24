@@ -58,12 +58,6 @@ class BtViewModel @Inject constructor(
     var glucose by mutableStateOf(-1.0F)
     var phone by mutableStateOf("+974")
 
-//    var glucoseWarning by mutableStateOf(
-//        (glucose < GLUCOSE_LOW
-//            || glucose > GLUCOSE_HIGH)
-//            && glucose != -1.0F
-//    )
-
     val glucoseWarning: MutableState<Boolean>
         get() = mutableStateOf(
             (glucose < GLUCOSE_LOW

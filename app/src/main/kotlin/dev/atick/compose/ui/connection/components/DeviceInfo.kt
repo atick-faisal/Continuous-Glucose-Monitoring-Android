@@ -3,15 +3,11 @@ package dev.atick.compose.ui.connection.components
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothClass.Device.Major.COMPUTER
 import android.bluetooth.BluetoothDevice
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
