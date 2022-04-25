@@ -73,6 +73,7 @@ dependencies {
     implementation project(path: ':core')
     implementation project(path: ':network')
     implementation project(path: ':bluetooth')
+    implementation project(path: ':sms')
 
     // ... Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
