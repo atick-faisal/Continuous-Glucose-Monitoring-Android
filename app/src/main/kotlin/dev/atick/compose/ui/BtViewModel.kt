@@ -1,7 +1,6 @@
 package dev.atick.compose.ui
 
 import android.bluetooth.BluetoothDevice
-import android.telephony.SmsManager
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +15,7 @@ import dev.atick.core.ui.BaseViewModel
 import dev.atick.core.utils.Event
 import dev.atick.network.data.Request
 import dev.atick.network.repository.GlucoseRepository
+import dev.atick.sms.utils.SmsUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BtViewModel @Inject constructor(
     private val btManager: BtManager,
-    private val glucoseRepository: GlucoseRepository
+    private val glucoseRepository: GlucoseRepository,
+    private val smsUtils: SmsUtils
 ) : BaseViewModel() {
 
     companion object {
@@ -145,21 +146,14 @@ class BtViewModel @Inject constructor(
     }
 
     private fun sendText(phone: String, glucose: Float) {
-        val smsManager = SmsManager.getDefault()
-        smsManager?.let {
-            it.sendTextMessage(
-                phone,
-                null,
-                "Help! Glucose value in critical range." +
-                    " Last recorded value $glucose mg/dL",
-                null,
-                null
-            )
-            toastMessage.postValue(
-                Event("SMS Sent to Emergency Contact")
-            )
-            Logger.w("SMS SENT")
-        }
+        smsUtils.sendSms(
+            phone = phone,
+            message = "Help! Glucose value in critical range." +
+                " Last recorded value $glucose mg/dL"
+        )
+        toastMessage.postValue(
+            Event("SMS Sent to Emergency Contact")
+        )
     }
 
 
