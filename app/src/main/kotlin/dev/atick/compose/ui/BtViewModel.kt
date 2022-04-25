@@ -65,10 +65,6 @@ class BtViewModel @Inject constructor(
                 && glucose != -1.0F
         )
 
-    init {
-        fetchPairedDevices()
-    }
-
     fun fetchPairedDevices() {
         pairedDevicesList.value = btManager.getPairedDevicesList()
     }
