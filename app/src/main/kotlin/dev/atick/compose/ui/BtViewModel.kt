@@ -36,7 +36,7 @@ class BtViewModel @Inject constructor(
         private const val GLUCOSE_HIGH = 200.0F
     }
 
-    private val buffer = MutableList(BUFFER_LEN) { 0.0F }
+    private val buffer = MutableList(BUFFER_LEN) { 1.0F }
     private val entries = mutableListOf<Entry>()
     var ppgDataset by mutableStateOf(
         LineDataSet(mutableListOf<Entry>(), "PPG")
