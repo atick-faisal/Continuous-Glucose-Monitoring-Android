@@ -14,6 +14,7 @@ import dev.atick.bluetooth.repository.BtManager
 import dev.atick.core.ui.BaseViewModel
 import dev.atick.core.utils.Event
 import dev.atick.network.data.Request
+import dev.atick.network.data.Response
 import dev.atick.network.repository.GlucoseRepository
 import dev.atick.sms.utils.SmsUtils
 import kotlinx.coroutines.delay
@@ -35,7 +36,7 @@ class BtViewModel @Inject constructor(
         private const val GLUCOSE_HIGH = 200.0F
     }
 
-    private val buffer = MutableList(BUFFER_LEN) { 1.0F }
+    private val buffer = MutableList(BUFFER_LEN) { 0.0F }
     private val entries = mutableListOf<Entry>()
     var ppgDataset by mutableStateOf(
         LineDataSet(mutableListOf<Entry>(), "PPG")
@@ -114,8 +115,9 @@ class BtViewModel @Inject constructor(
                 val genderInt =
                     if (gender.lowercase() == "male") 0 else 1
                 val metadata = "$age,$bmi,$dia,$type,$genderInt,$pulse,$sys"
+                var response: Response? = null
                 try {
-                    val response = glucoseRepository.getGlucosePrediction(
+                    response = glucoseRepository.getGlucosePrediction(
                         Request(
                             ppgData = ppgData,
                             metadata = metadata
@@ -127,7 +129,8 @@ class BtViewModel @Inject constructor(
                     }
                 } catch (e: Exception) {
                     toastMessage.postValue(
-                        Event("Server Error")
+                        Event("Server Error.\n" +
+                            "Incoming Data: $response \nError: $e")
                     )
                 }
                 Logger.w(metadata)
