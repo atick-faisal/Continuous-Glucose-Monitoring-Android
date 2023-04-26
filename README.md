@@ -23,6 +23,12 @@
 
 <br>
 
+<p align="center">
+  <a href="https://github.com/atick-faisal/Continuous-Glucose-Monitoring-Android/releases">
+    <img src="https://user-images.githubusercontent.com/38709932/234548794-b2e74550-af8f-4593-affb-5a00679e90f2.png" width="400"/>
+  </a>
+</p>
+
 ## How it Works
 ![Methodology](https://user-images.githubusercontent.com/38709932/234552472-25b7cddf-f173-48a5-a2f2-dcb717550ac5.svg)
 
@@ -30,6 +36,7 @@
 ![CardiacZoneAndroidDemo (4)](https://user-images.githubusercontent.com/38709932/234557042-781cb055-d386-437f-a92c-dcfd9df1b36c.svg)
 ![CardiacZoneAndroidDemo (5)](https://user-images.githubusercontent.com/38709932/234557035-26eaabd8-4b47-4a51-a446-2074923735d1.svg)
 ![CardiacZoneAndroidDemo (6)](https://user-images.githubusercontent.com/38709932/234557024-f4bb4692-7710-46bd-bc5c-a1315cac53db.svg)
+
 
 <br>
 
