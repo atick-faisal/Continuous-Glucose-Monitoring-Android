@@ -21,6 +21,17 @@
   <img src="cgm_banner.png"/>
 </p>
 
+<br>
+
+## How it Works
+![Methodology](https://user-images.githubusercontent.com/38709932/234552472-25b7cddf-f173-48a5-a2f2-dcb717550ac5.svg)
+
+## Overview
+![CardiacZoneAndroidDemo (4)](https://user-images.githubusercontent.com/38709932/234557042-781cb055-d386-437f-a92c-dcfd9df1b36c.svg)
+![CardiacZoneAndroidDemo (5)](https://user-images.githubusercontent.com/38709932/234557035-26eaabd8-4b47-4a51-a446-2074923735d1.svg)
+![CardiacZoneAndroidDemo (6)](https://user-images.githubusercontent.com/38709932/234557024-f4bb4692-7710-46bd-bc5c-a1315cac53db.svg)
+
+<br>
 
 ## License
 [![licensebuttons by-nc-sa](https://licensebuttons.net/l/by-nc-sa/3.0/88x31.png)](https://creativecommons.org/licenses/by-nc-sa/4.0)
